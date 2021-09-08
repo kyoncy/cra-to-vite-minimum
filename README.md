@@ -1,46 +1,145 @@
-# Getting Started with Create React App
+# Create React App to Vite
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Start CRA not work on IE11
 
-## Available Scripts
+```shell
+$ yarn create react-app cra-to-vite --template typescript
+$ cd cra-to-vite/
+$ yarn start
+```
 
-In the project directory, you can run:
+Access http://localhost:3000
 
-### `yarn start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## CRA work on IE11
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Add code first line of `src/index.tsx`.
 
-### `yarn test`
+```typescript
+/** @jsxRuntime classic */
+import 'react-app-polyfill/ie11';
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Add `package.json`'s browserslist.
 
-### `yarn build`
+```diff
+    "development": [
++     "ie 11"
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```shell
+$ yarn start
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Access http://localhost:3000
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `yarn eject`
+## CRA to Vite not work on IE11
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Fix `package.json`.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```diff
++   "devDependencies": {
++     "@vitejs/plugin-react-refresh": "^1.3.6",
++     "vite": "^2.5.5"
++   },
++   "scripts": {
+-     "start": "react-scripts start",
+-     "build": "react-scripts build",
+-     "test": "react-scripts test",
+-     "eject": "react-scripts eject"
++     "start": "vite",
++     "build": "vite build",
++     "serve": "vite preview"
++   },
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Create `vite.config.ts`.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```typescript
+import { defineConfig } from 'vite'
+import reactRefresh from '@vitejs/plugin-react-refresh'
 
-## Learn More
+export default defineConfig({
+  build: {
+    outDir: 'build',
+  },
+  plugins: [
+    reactRefresh(),
+  ],
+})
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Fix `tsconfig.json`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```diff
+-     "allowJs": true,
+-     "skipLibCheck": true,
+-     "esModuleInterop": true,
++     "types": [
++       "vite/client"
++     ],
++     "allowJs": false,
++     "skipLibCheck": false,
++     "esModuleInterop": false,
+```
+
+Move `public/index.html` to project root directory
+
+Then, remove `%PUBLIC_URL%` and add `script` tag in `body`.
+
+```html
+<script type="module" src="/src/index.tsx"></script>
+```
+
+```shell
+$ yarn start
+```
+
+Access http://localhost:3000
+
+
+## Vite work on IE11
+
+Fix `package.json`.
+
+```diff
+    "devDependencies": {
+      "@vitejs/plugin-react-refresh": "^1.3.6",
++     "@vitejs/plugin-react-refresh": "^1.3.6",
+      "vite": "^2.5.5"
+    },
+```
+
+Fix `vite.config.ts`
+
+```diff
+  import { defineConfig } from 'vite'
++ import reactRefresh from '@vitejs/plugin-react-refresh'
+  import reactRefresh from '@vitejs/plugin-react-refresh'
+
+  export default defineConfig({
+    build: {
+      outDir: 'build',
+    },
+    plugins: [
+      reactRefresh(),
++     legacy({
++       targets: ['ie >= 11'],
++       additionalLegacyPolyfills: ['regenerator-runtime/runtime']
++     })
+    ],
+  })
+```
+
+
+```shell
+$ yarn build
+$ yarn serve
+```
+
+Access http://localhost:5000
