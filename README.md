@@ -119,8 +119,8 @@ Fix `vite.config.ts`
 
 ```diff
   import { defineConfig } from 'vite'
-+ import reactRefresh from '@vitejs/plugin-react-refresh'
   import reactRefresh from '@vitejs/plugin-react-refresh'
++ import legacy from '@vitejs/plugin-legacy'
 
   export default defineConfig({
     build: {
